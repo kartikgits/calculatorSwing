@@ -28,11 +28,12 @@ class Stack{
 		return stk.get(top--);
 	}
 	
+	/*
 	//debug function
 	void printStack() {
 		for(int i=0;i<=top;i++)
 			System.out.print(" "+stk.get(i));
-	}
+	}*/
 	
 }
 
@@ -69,19 +70,22 @@ class PostFixQueue
 	}
 	char get()
 	{
-		if(putPointer == getPointer) {
-			return 'e';
-		}
 		return stk.get(getPointer++);
 		
 	}
+	
+	//debug function
+		void printStack() {
+			for(int i=0;i<putPointer;i++)
+				System.out.print(" "+stk.get(i));
+		}
 	
 }
 
 
 class Demo extends JFrame implements ActionListener{
 	JLabel ad,eq;
-	JTextField n1,n2,n3;
+	JTextField n1;
 	JButton b1,b2,b3,b4,b5,b6,b7,b8,b9,plus,minus,div,mul,eql;
 	
 	Demo(){
@@ -293,20 +297,25 @@ class Demo extends JFrame implements ActionListener{
 		    		} else {
 		    			//There is an operator of higher precedence in operator stack
 		    			//Pop all operators and put into PostFixQueue
-		    			while(opr.top>=0) {
-		    				char o = opr.pop();
+		    			char o = opr.pop();
+		    			while(o!='a') {
 		    				exp.put(o);
+		    				o = opr.pop();
 		    			}
 		    			//Now we can push current operator
 		    			opr.push(ch);
 		    			precedenceFlag=false;
 		    		}
 		    	}
+		    	
 		    }
-		    opr.printStack();
-		    exp.put(opr.pop());
+		    char o = opr.pop();
+			while(o!='a') {
+				exp.put(o);
+				o = opr.pop();
+			}
 		    exp.put('e');
-		    
+		    exp.printStack();
 		    //Now we can calculate postfix expression
 		    NumberStack solution = new NumberStack();
 		    char ch=exp.get();
@@ -320,10 +329,10 @@ class Demo extends JFrame implements ActionListener{
 		    		int operand2 = solution.pop();
 		    		int ans=0;
 		    		switch(ch) {
-		    		case '+': ans= operand1+operand2; break;
-		    		case '-': ans= operand1-operand2; break;
-		    		case '*': ans= operand1*operand2; break;
-		    		case '/': ans= operand1/operand2; break;
+		    		case '+': ans= operand2+operand1; break;
+		    		case '-': ans= operand2-operand1; break;
+		    		case '*': ans= operand2*operand1; break;
+		    		case '/': ans= operand2/operand1; break;
 		    		}
 		    		solution.push(ans);
 		    	}

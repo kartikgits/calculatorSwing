@@ -49,10 +49,6 @@ class NumberStack{
 	
 	int pop()
 	{
-		/*
-		if(top==-1) {
-			return (Integer) null;
-		}*/
 		return stk.get(top--);
 	}
 }
@@ -62,24 +58,31 @@ class PostFixQueue
 {
 	int putPointer=0, getPointer=0;
 	
-    ArrayList<Character> stk = new ArrayList<Character>();
-	void put(char ch)
+    ArrayList<String> stk = new ArrayList<>();
+	void put(String ch)
 	{
 		stk.add(putPointer++,ch);
 		
 	}
-	char get()
+	String get()
 	{
 		return stk.get(getPointer++);
 		
 	}
 	
-	//debug function
-		void printStack() {
-			for(int i=0;i<putPointer;i++)
-				System.out.print(" "+stk.get(i));
-		}
-	
+}
+
+class CharToNum{
+	//For converting Character array to string
+	static String getStringFrom(ArrayList<Character> list)
+	{    
+	    StringBuilder builder = new StringBuilder(list.size());
+	    for(Character ch: list)
+	    {
+	        builder.append(ch);
+	    }
+	    return builder.toString();
+	}
 }
 
 
@@ -91,7 +94,7 @@ class Demo extends JFrame implements ActionListener{
 	Demo(){
 		JFrame jFrame = new JFrame("Solve");
 		
-		n1= new JTextField(10);
+		n1= new JTextField(20);
 		add(n1);
 		
 		b1 = new JButton("1");
@@ -268,14 +271,19 @@ class Demo extends JFrame implements ActionListener{
 				//do nothing
 			}
 			
-			//create postfix expression, solve and display it
+			//create postfix expression, solve and display it - display to console
 			else
 			{
 			char s[]=n1.getText().toCharArray();
+			
 		    boolean precedenceFlag=false;
+		    
+		    
 		    PostFixQueue exp = new PostFixQueue();
 		    Stack opr = new Stack();
 		    
+		    //for keeping track of current number
+		    ArrayList<Character> number = new ArrayList<>();
 		    
 		    //creating postfix expression
 		    for(int i=0; i<s.length;i++) {
@@ -283,8 +291,13 @@ class Demo extends JFrame implements ActionListener{
 		    	
 		    	if(ch-'0'>=0 && ch-'0'<=9) {
 		    		//character is a number
-		    		exp.put(ch);
+		    		number.add(ch);
+		    		
 		    	} else {
+		    		//else it is an operator
+		    		exp.put(CharToNum.getStringFrom(number));
+		    		number.clear();
+		    		
 		    		if(!precedenceFlag) {
 		    			//There is NOT an operator of higher precedence in operator stack
 		    			//We can push operators in operator stack
@@ -299,7 +312,7 @@ class Demo extends JFrame implements ActionListener{
 		    			//Pop all operators and put into PostFixQueue
 		    			char o = opr.pop();
 		    			while(o!='a') {
-		    				exp.put(o);
+		    				exp.put(String.valueOf(o));
 		    				o = opr.pop();
 		    			}
 		    			//Now we can push current operator
@@ -309,26 +322,33 @@ class Demo extends JFrame implements ActionListener{
 		    	}
 		    	
 		    }
+		    
+		    //Put the last number being continued from character array into the stack
+		    exp.put(CharToNum.getStringFrom(number));
+    		number.clear();
+		    
 		    char o = opr.pop();
 			while(o!='a') {
-				exp.put(o);
+				exp.put(String.valueOf(o));
 				o = opr.pop();
 			}
-		    exp.put('e');
-		    exp.printStack();
+		    exp.put("e");
+		    
 		    //Now we can calculate postfix expression
 		    NumberStack solution = new NumberStack();
-		    char ch=exp.get();
+		    String ch=exp.get();
 		    
-		    while(ch!='e') {
-		    	int n = ch-'0';
-		    	if(n>=0 && n<=9)
+		    while(!ch.equals("e")) {
+		    	try{
+		    		int n = Integer.valueOf(ch);
 		    		solution.push(n);
-		    	else {
+		    	}
+		    	catch(NumberFormatException e) {
 		    		int operand1 = solution.pop();
 		    		int operand2 = solution.pop();
 		    		int ans=0;
-		    		switch(ch) {
+		    		char op = ch.charAt(0);
+		    		switch(op) {
 		    		case '+': ans= operand2+operand1; break;
 		    		case '-': ans= operand2-operand1; break;
 		    		case '*': ans= operand2*operand1; break;
